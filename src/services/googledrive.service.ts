@@ -3,6 +3,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { google } from "googleapis";
 import GoogleOAuth2 from '../googleoauth2';
+import { rootPath } from '../../root';
 
 export default class GoogleDriveService {
     private static _singleton: boolean = true;
@@ -25,7 +26,7 @@ export default class GoogleDriveService {
     private getNewFileName (file) {
         const ext = path.extname(file.originalname);
             const filename = path.basename(file.originalname, ext)
-           return filename + '-' + Date.now() + ext
+           return filename + '-ashish-' + Date.now() + ext
     }
     public async moveFileToDrive(file){
         console.log(GoogleOAuth2.auth)
@@ -35,15 +36,21 @@ export default class GoogleDriveService {
             'parents': ['1sJXaKeKyHr6qv5AJWmLR8sitDTWX-G3Q'],
             'mimeType' : 'application/vnd.google-apps.presentation'
         };
-
+        console.log(fs.existsSync(path.join(rootPath,file.path)))
+        if(!fs.existsSync(path.join(rootPath,file.path))){
+            return {
+                error: true,
+                message: "File doesnot exist!"
+            }
+        }
         const media = {
             mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            body: fs.createReadStream("../test1.pptx")
+            body: fs.createReadStream(path.join(rootPath,file.path))
         };
         try{
 
             const uploadedFile = await drive.files.create({
-                auth: GoogleOAuth2.auth.tokens,
+                auth: GoogleOAuth2.auth,
                 media: media,
                 requestBody: fileMetadata
             })
@@ -58,7 +65,7 @@ export default class GoogleDriveService {
             
             const uploadedFile = await this.moveFileToDrive(req.file);
             console.log(uploadedFile);
-            return req.file;
+            return uploadedFile;
         } catch (e) {
             return {
                 error: true,
