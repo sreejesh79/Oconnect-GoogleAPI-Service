@@ -23,20 +23,13 @@ export default class GoogleDriveService {
         return this._instance;
     }
 
-    private getNewFileName (file) {
-        const ext = path.extname(file.originalname);
-            const filename = path.basename(file.originalname, ext)
-           return filename + '-ashish-' + Date.now() + ext
-    }
     public async moveFileToDrive(file){
-        console.log(GoogleOAuth2.auth)
         const drive = google.drive({version: 'v3', auth: GoogleOAuth2.auth});
         const fileMetadata = {
-            'name': this.getNewFileName(file),
+            'name': file.originalname,
             'parents': ['1sJXaKeKyHr6qv5AJWmLR8sitDTWX-G3Q'],
             'mimeType' : 'application/vnd.google-apps.presentation'
         };
-        console.log(fs.existsSync(path.join(rootPath,file.path)))
         if(!fs.existsSync(path.join(rootPath,file.path))){
             return {
                 error: true,
@@ -61,10 +54,7 @@ export default class GoogleDriveService {
     }
     public async uploadFile(req: any): Promise<any> {
         try {
-            console.log("My FIle ",req.file);
-            
             const uploadedFile = await this.moveFileToDrive(req.file);
-            console.log(uploadedFile);
             return uploadedFile;
         } catch (e) {
             return {
