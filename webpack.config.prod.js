@@ -45,12 +45,12 @@ module.exports = {
     // Add `.ts` and `.tsx` as a resolvable extension.
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
-        controllers: path.resolve(__dirname, 'src/api/controllers/'),
-        models: path.resolve(__dirname, 'src/api/models/'),
-        services: path.resolve(__dirname, 'src/api/services/'),
-        middlewares: path.resolve(__dirname, 'src/api/middlewares/'),
+        controllers: path.resolve(__dirname, 'src/controllers/'),
+        models: path.resolve(__dirname, 'src/models/'),
+        services: path.resolve(__dirname, 'src/services/'),
+        middlewares: path.resolve(__dirname, 'src/middlewares/'),
         config: path.resolve(__dirname, 'src/config'),
-        responses: path.resolve(__dirname, 'src/api/responses'),
+        responses: path.resolve(__dirname, 'src/responses'),
     }
   },
   module: {
