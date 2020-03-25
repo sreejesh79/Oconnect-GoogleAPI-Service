@@ -23,12 +23,106 @@ export default class GoogleDriveService {
         return this._instance;
     }
 
+    private async getMimeTypeByFileExtension(filename) {
+        const ext = path.extname(filename);
+        let driveMimeType = ""
+        let fileMimeType = ""
+        switch (ext) {
+            case ".doc":   
+            case ".dot":   
+            case ".docx":   
+            case ".dotx":   
+            case ".docm":   
+            case ".dotm": 
+                driveMimeType = "application/vnd.google-apps.document"
+                break;
+            case ".xls":  
+            case ".xlt":  
+            case ".xla":  
+            case ".xlsx":  
+            case ".xltx": 
+                driveMimeType = "application/vnd.google-apps.spreadsheet"
+                break;
+            case ".ppt":  
+            case ".pot":  
+            case ".pps":  
+            case ".ppa":  
+            case ".pptx":  
+            case ".potx":  
+            case ".ppsx":  
+                driveMimeType = "application/vnd.google-apps.presentation"
+                break;
+            default :
+                driveMimeType = "application/vnd.google-apps.presentation"
+                break;
+        }
+        switch(ext) {
+            case ".doc":  
+                fileMimeType =  "application/msword" 
+                break;
+            case ".dot":  
+                fileMimeType =  "application/msword" 
+                break;
+            case ".docx": 
+                fileMimeType =  "application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+                break;
+            case ".dotx": 
+                fileMimeType =  "application/vnd.openxmlformats-officedocument.wordprocessingml.template" 
+                break;
+            case ".docm": 
+                fileMimeType =  "application/vnd.ms-word.document.macroEnabled.12" 
+                break;
+            case ".dotm": 
+                fileMimeType =  "application/vnd.ms-word.template.macroEnabled.12" 
+                break;
+            case ".ppt":  
+                fileMimeType =   "application/vnd.ms-powerpoint" 
+                break;
+            case ".pot":  
+                fileMimeType =   "application/vnd.ms-powerpoint" 
+                break;
+            case ".pps":  
+                fileMimeType =   "application/vnd.ms-powerpoint" 
+                break;
+            case ".ppa":  
+                fileMimeType =   "application/vnd.ms-powerpoint" 
+                break;
+            case ".pptx": 
+                fileMimeType =   "application/vnd.openxmlformats-officedocument.presentationml.presentation" 
+                break;
+            case ".potx": 
+                fileMimeType =   "application/vnd.openxmlformats-officedocument.presentationml.template" 
+                break;
+            case ".ppsx": 
+                fileMimeType =   "application/vnd.openxmlformats-officedocument.presentationml.slideshow" 
+                break;
+            case ".xls":  
+                fileMimeType =   "application/vnd.ms-excel" 
+                break;
+            case ".xlt":  
+                fileMimeType =   "application/vnd.ms-excel" 
+                break;
+            case ".xla":  
+                fileMimeType =   "application/vnd.ms-excel" 
+                break;
+            case ".xlsx": 
+                fileMimeType =   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+                break;
+            case ".xltx": 
+                fileMimeType =   "application/vnd.openxmlformats-officedocument.spreadsheetml.template" 
+                break;
+
+        }
+        return {driveMimeType, fileMimeType}
+    }
+
     public async moveFileToDrive(file){
         const drive = google.drive({version: 'v3', auth: GoogleOAuth2.auth});
+        const mimeTypes = this.getMimeTypeByFileExtension(file.originalname)
         const fileMetadata = {
             'name': file.originalname,
             'parents': ['1sJXaKeKyHr6qv5AJWmLR8sitDTWX-G3Q'],
-            'mimeType' : 'application/vnd.google-apps.presentation'
+            'mimeType' : (await mimeTypes).driveMimeType
         };
         if(!fs.existsSync(path.join(rootPath,file.path))){
             return {
@@ -37,7 +131,7 @@ export default class GoogleDriveService {
             }
         }
         const media = {
-            mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            mimeType: (await mimeTypes).fileMimeType,
             body: fs.createReadStream(path.join(rootPath,file.path))
         };
         try{
